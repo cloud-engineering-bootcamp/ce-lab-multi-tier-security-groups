@@ -120,6 +120,31 @@ Outbound:
 
 ---
 
+### 📸 Screenshot Required
+
+**Filename**
+
+```
+screenshots/01-security-groups-list.png
+```
+
+**Capture**
+
+Capture the **EC2 → Security Groups** page showing all four security groups:
+
+- `sg-bastion`
+- `sg-web-tier`
+- `sg-app-tier`
+- `sg-database`
+
+Ensure all four security groups are visible in the list.
+
+**Purpose**
+
+This screenshot verifies that all required security groups have been successfully created before proceeding to launch the EC2 instances.
+
+---
+
 ### Step 2: Launch Instances
 
 Launch 4 instances, each with a single security group:
@@ -137,7 +162,8 @@ Pick one of the two approaches below. You'll use it for the rest of the lab.
 **Option 1: ProxyJump (key stays on your laptop)**
 
 Add this to `~/.ssh/config`, replacing `YOUR_KEY.pem` with your key file:
-```
+
+```text
 Host bastion
     HostName BASTION_PUBLIC_IP
     User ec2-user
@@ -163,6 +189,7 @@ Host db
 ```
 
 Now you can connect to any tier in one command - SSH hops through the bastion for you:
+
 ```bash
 ssh bastion
 ssh web
@@ -211,6 +238,27 @@ Option 2 is simpler to follow, but it puts a copy of your private key on a share
 
 ---
 
+### 📸 Screenshot Required
+
+**Filename**
+
+```text
+screenshots/02-web-tier-rules.png
+```
+
+**Capture**
+
+Open the **Inbound Rules** for the **sg-web-tier** security group and ensure the following rules are visible:
+
+- HTTP (80) from `0.0.0.0/0`
+- HTTPS (443) from `0.0.0.0/0`
+- SSH (22) from `sg-bastion`
+
+**Purpose**
+
+This screenshot verifies that the web tier has been configured with the correct inbound security rules before application traffic is tested.
+
+---
 ### Step 3: Simulate Application Traffic
 
 Before you can test whether traffic is *allowed*, each tier needs a service actually listening. Set these up first — otherwise every test in Step 4 fails no matter how correct your security groups are.
@@ -265,6 +313,30 @@ EOF
 sudo systemctl start nginx
 sudo systemctl enable nginx
 ```
+
+---
+
+### 📸 Screenshot Required
+
+**Filename**
+
+```
+screenshots/03-services-running.png
+```
+
+**Capture**
+
+Capture terminal windows showing:
+
+- Database instance listening on port **3306**
+- App instance running the Node.js server on port **8080**
+- Web instance with **Nginx** installed and running
+
+You may use one combined screenshot or multiple terminal panes if everything is clearly visible.
+
+**Purpose**
+
+This screenshot verifies that each application tier is running the required service before testing the security groups.
 
 ---
 
@@ -335,6 +407,28 @@ curl http://WEB_INSTANCE_PUBLIC_IP
 
 ---
 
+### 📸 Screenshot Required
+
+**Filename**
+
+```
+screenshots/04-traffic-flow-test.png
+```
+
+**Capture**
+
+Capture your terminal showing evidence of the traffic flow tests, including:
+
+- Successful `curl` request to the web tier
+- Successful `nc` connection from the web tier to the app tier
+- Successful `nc` connection from the app tier to the database tier
+- At least one failed connection (timeout) demonstrating that unauthorized traffic was blocked by the security groups
+
+**Purpose**
+
+This screenshot demonstrates that the multi-tier security group configuration correctly allows authorized traffic while blocking unauthorized access.
+
+---
 ## 📤 What to Submit
 
 **Submission Type:** GitHub Repository
@@ -360,9 +454,47 @@ ce-lab-multi-tier-security/
 └── screenshots/
     ├── 01-security-groups-list.png
     ├── 02-web-tier-rules.png
-    ├── 03-traffic-flow-test.png
-    └── 04-architecture-console.png
+    ├── 03-services-running.png
+    ├── 04-traffic-flow-test.png
+    └── 05-architecture-console.png
 ```
+
+---
+
+### 📸 Screenshot Required
+
+**Filename**
+
+```
+screenshots/05-architecture-console.png
+```
+
+**Capture**
+
+Capture the **EC2 Instances** page showing:
+
+- Bastion instance
+- Web instance
+- App instance
+- Database instance
+
+Ensure the **Security Groups** column is visible so it is clear which security group is attached to each instance.
+
+**Purpose**
+
+This screenshot documents the completed multi-tier architecture and verifies that each instance has been associated with the correct security group.
+
+---
+
+## Screenshot Checklist
+
+Before submitting your lab, verify that the following screenshots are present in the `screenshots/` folder:
+
+- [ ] `screenshots/01-security-groups-list.png`
+- [ ] `screenshots/02-web-tier-rules.png`
+- [ ] `screenshots/03-services-running.png`
+- [ ] `screenshots/04-traffic-flow-test.png`
+- [ ] `screenshots/05-architecture-console.png`
 
 ---
 
@@ -380,3 +512,4 @@ ce-lab-multi-tier-security/
 ---
 
 **Great work on implementing production-ready security!** 🛡️
+

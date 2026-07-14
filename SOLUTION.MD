@@ -5,7 +5,7 @@
 
 ---
 
-## Environment Details
+# Environment Details
 
 | Tier | Instance ID | Private IP | Public IP | Security Group |
 |------|-------------|------------|-----------|----------------|
@@ -20,9 +20,19 @@
 
 ---
 
-## Step 1: Create Security Groups
+# Step 1: Create Security Groups
 
-![Security Groups List](Screenshots/01-security-groups-list.png)
+## Screenshot 1 – Security Groups List
+
+Save your screenshot as:
+
+```
+screenshots/01-security-groups-list.png
+```
+
+![Security Groups List](screenshots/01-security-groups-list.png)
+
+---
 
 - [ ] `sg-bastion` created
 - [ ] `sg-web-tier` created
@@ -30,14 +40,14 @@
 - [ ] `sg-database` created
 - [ ] Rules reference other **security groups**, not IP ranges (except port 22 on the bastion and 80/443 on the web tier)
 
-**sg-bastion**
+### sg-bastion
 
 | Direction | Port | Source / Destination | Purpose |
 |-----------|------|----------------------|---------|
 | Inbound | [22] | [YOUR_IP/32] | [SSH from my laptop] |
 | Outbound | [22] | [sg-web-tier, sg-app-tier, sg-database] | [Hop to private tiers] |
 
-**sg-web-tier**
+### sg-web-tier
 
 | Direction | Port | Source / Destination | Purpose |
 |-----------|------|----------------------|---------|
@@ -47,7 +57,7 @@
 | Outbound | [8080] | [sg-app-tier] | [Proxy to app tier] |
 | Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
 
-**sg-app-tier**
+### sg-app-tier
 
 | Direction | Port | Source / Destination | Purpose |
 |-----------|------|----------------------|---------|
@@ -56,7 +66,7 @@
 | Outbound | [3306] | [sg-database] | [MySQL queries] |
 | Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
 
-**sg-database**
+### sg-database
 
 | Direction | Port | Source / Destination | Purpose |
 |-----------|------|----------------------|---------|
@@ -64,52 +74,119 @@
 | Inbound | [22] | [sg-bastion] | [SSH via bastion only] |
 | Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
 
-**Why reference a security group instead of a private IP or CIDR?**
+---
 
-[Your answer]
+### Why reference a security group instead of a private IP or CIDR?
+
+**Your Answer**
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
 
 ---
 
-## Step 2: Launch Instances and Connect Through the Bastion
+# Step 2: Launch Instances and Connect Through the Bastion
 
-![Web Tier Rules](Screenshots/02-web-tier-rules.png)
+## Screenshot 2 – Web Tier Security Group Rules
+
+Save your screenshot as:
+
+```
+screenshots/02-web-tier-rules.png
+```
+
+![Web Tier Rules](screenshots/02-web-tier-rules.png)
+
+---
 
 - [ ] 4 instances launched, one security group each
 - [ ] Connected to the bastion from my laptop
 - [ ] Reached web / app / db by **private IP** through the bastion
 
-**Which connection method did you use?** [ProxyJump / copy key to bastion]
+---
 
-**My `~/.ssh/config` (or the commands I ran):**
-```
-[Paste your host entries or ssh commands here]
-```
+### Which connection method did you use?
 
-**Why must you target the private tiers by private IP, not public IP?**
-
-[Your answer]
+- [ ] ProxyJump
+- [ ] Copy key to bastion
 
 ---
 
-## Step 3: Simulate Application Traffic
+### My `~/.ssh/config` (or the commands I ran)
+
+```text
+[Paste your host entries or SSH commands here]
+```
+
+---
+
+### Why must you target the private tiers by private IP instead of public IP?
+
+**Your Answer**
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+# Step 3: Simulate Application Traffic
+
+## Screenshot 3 – Services Running
+
+Save your screenshot as:
+
+```
+screenshots/03-services-running.png
+```
+
+![Services Running](screenshots/03-services-running.png)
+
+---
 
 - [ ] Database: `nc -l 3306` loop running (`nmap-ncat` installed)
 - [ ] App: `server.js` listening on 8080 (`nodejs` installed)
 - [ ] Web: Nginx installed, proxying `/` to `http://APP_PRIVATE_IP:8080`, enabled on boot
 
-**Anything that did not start cleanly?**
+### Anything that did not start cleanly?
 
-[Your answer, or "Nothing — all three services came up first try"]
+**Your Answer**
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
 
 ---
 
-## Step 4: Test Traffic Flow
+# Step 4: Test Traffic Flow
 
-![Traffic Flow Test](Screenshots/03-traffic-flow-test.png)
+## Screenshot 4 – Traffic Flow Test
 
-**Reading results:** *connection refused* = the security group **allowed** the packet but nothing was listening. *Timeout / hang* = the security group **blocked** it.
+Save your screenshot as:
 
-Tick the box if the test did what the "Expected" column says.
+```
+screenshots/04-traffic-flow-test.png
+```
+
+![Traffic Flow Test](screenshots/04-traffic-flow-test.png)
+
+---
+
+**Reading results:** *connection refused* = the security group **allowed** the packet but nothing was listening. *Timeout / hang* = the security group **blocked** the packet.
+
+Tick the box if the test did what the **Expected** column says.
 
 | # | Test | Run from | Expected | Got it |
 |---|------|----------|----------|--------|
@@ -121,92 +198,189 @@ Tick the box if the test did what the "Expected" column says.
 | 6 | `nc -zv DB_PRIVATE_IP 3306` | Web | ❌ Timeout | [ ] |
 | 7 | `curl http://WEB_PUBLIC_IP` | Laptop | ✅ "Hello from App Tier" | [ ] |
 
-**Test 6 — how did it fail?** (Timeout is the correct answer. "Refused" means the web tier *can* reach the database and a rule is too open.)
+---
 
-- [ ] Timed out / hung ✅ correct
-- [ ] Connection refused ⚠️ rules too permissive
+### Test 6 — How did it fail?
 
-**Did every test pass first try?**
+(Timeout is the correct answer. "Connection refused" means the web tier can reach the database and a rule is too permissive.)
+
+- [ ] Timed out / hung ✅ Correct
+- [ ] Connection refused ⚠️ Rules too permissive
+
+---
+
+### Did every test pass on the first attempt?
 
 - [ ] Yes
-- [ ] No — what I had to fix: [one line]
+- [ ] No
+
+If no, what did you have to fix?
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
 
 ---
 
-## Step 5: Architecture
+# Step 5: Architecture
 
-![Architecture in Console](Screenshots/04-architecture-console.png)
+## Screenshot 5 – Completed Architecture
 
-**Confirm each hop works and nothing else does:**
+Save your screenshot as:
 
-- [ ] Internet → Web on port **80** (allowed by `sg-web-tier`: inbound 80 from `0.0.0.0/0`)
-- [ ] Web → App on port **8080** (allowed by `sg-app-tier`: inbound 8080 from `sg-web-tier`)
-- [ ] App → Database on port **3306** (allowed by `sg-database`: inbound 3306 from `sg-app-tier`)
-- [ ] Me → private tiers on port **22**, but only via the bastion (`sg-bastion` is the only source)
-- [ ] Web → Database is **blocked** (no rule allows it)
-- [ ] Internet → App / Database is **blocked** (no public route in)
+```
+screenshots/05-architecture-console.png
+```
 
-**Instances with no public IP:** [app, db]
-
-**Instances reachable from the internet:** [bastion (22 from my IP), web (80/443 from anywhere)]
+![Architecture Console](screenshots/05-architecture-console.png)
 
 ---
 
-## Bonus Challenges (Optional)
+Confirm each communication path.
 
-- [ ] **Challenge 1:** Remove the `443 → 0.0.0.0/0` egress rule from one tier — what broke? [Your answer]
-- [ ] **Challenge 2:** Attach two security groups to one instance — how do the rules combine? [Your answer]
-- [ ] **Challenge 3:** Tighten the bastion's inbound SSH to a single `/32` and re-test from a different network. [Your answer]
-- [ ] **Challenge 4:** Reproduce the four groups with AWS CLI (`aws ec2 authorize-security-group-ingress`). [Your answer]
-
----
-
-## Reflection
-
-**1. Why can the app tier reach the database, but the web tier cannot?**
-
-[Your answer]
-
-**2. Why do all four instances only accept SSH from the bastion?**
-
-[Your answer]
-
-**3. When a test hung instead of failing fast, what was blocking it?**
-
-[Your answer]
-
-**4. Which single rule would you never write, and why?**
-
-[Your answer]
+- [ ] Internet → Web on port **80**
+- [ ] Web → App on port **8080**
+- [ ] App → Database on port **3306**
+- [ ] SSH access only through the bastion host
+- [ ] Web → Database blocked
+- [ ] Internet → App blocked
+- [ ] Internet → Database blocked
 
 ---
 
-## Key Learnings
+### Instances with no public IP
 
-**Hardest part of the lab:**
-[Your answer]
-
-**One thing I'll do differently from now on:**
-[Your answer]
+```
+_______________________________________________________________
+```
 
 ---
 
-## Checklist
+### Instances reachable from the Internet
 
-- [ ] 4 security groups created with SG-to-SG references
-- [ ] 4 instances launched, one per tier
-- [ ] SSH to private tiers works only through the bastion
-- [ ] Services listening on all three tiers (nc, Node.js, Nginx)
-- [ ] All 7 traffic tests run and documented
-- [ ] Blocked tests confirmed as **timeout**, not refused
-- [ ] End-to-end curl returns "Hello from App Tier"
-- [ ] Architecture diagram included
-- [ ] All screenshots captured
-- [ ] Reflection questions answered
-- [ ] Work committed to Git
-- [ ] Pull request created
+```
+_______________________________________________________________
+```
 
 ---
 
-**Completed By:** [Your Name]  
-**Date:** [Date]
+# Bonus Challenges (Optional)
+
+- [ ] **Challenge 1:** Remove the `443 → 0.0.0.0/0` egress rule from one tier. What broke?
+
+```
+_______________________________________________________________
+```
+
+- [ ] **Challenge 2:** Attach two security groups to one instance. How do the rules combine?
+
+```
+_______________________________________________________________
+```
+
+- [ ] **Challenge 3:** Tighten the bastion's inbound SSH to a single `/32` and re-test from another network.
+
+```
+_______________________________________________________________
+```
+
+- [ ] **Challenge 4:** Recreate the four security groups using the AWS CLI.
+
+```
+_______________________________________________________________
+```
+
+---
+
+# Reflection
+
+## 1. Why can the application tier reach the database, but the web tier cannot?
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+## 2. Why do all private instances only accept SSH from the bastion?
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+## 3. When a connection timed out instead of failing immediately, what was blocking it?
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+## 4. Which security group rule would you never configure in a production environment, and why?
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+# Key Learnings
+
+### Hardest part of this lab
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+### One thing I will do differently in future AWS deployments
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+# Checklist
+
+- [ ] 4 security groups created with security group references
+- [ ] 4 EC2 instances launched
+- [ ] SSH works only through the bastion
+- [ ] Required services running on all tiers
+- [ ] All 7 connectivity tests completed
+- [ ] Blocked traffic confirmed with timeouts
+- [ ] End-to-end application test successful
+- [ ] Architecture documented
+- [ ] All required screenshots captured
+- [ ] Reflection questions completed
+- [ ] Changes committed to Git
+- [ ] Pull Request created
+
+
