@@ -27,10 +27,10 @@
 Save your screenshot as:
 
 ```
-screenshots/01-security-groups-list.png
+Screenshots/01-security-groups-list.png
 ```
 
-![Security Groups List](screenshots/01-security-groups-list.png)
+![Security Groups List](Screenshots/01-security-groups-list.png)
 
 ---
 
@@ -93,10 +93,10 @@ Using security groups makes the process scalable.
 Save your screenshot as:
 
 ```
-screenshots/02-web-tier-rules.png
+Screenshots/02-web-tier-rules.png
 ```
 
-![Web Tier Rules](screenshots/02-web-tier-rules.png)
+![Web Tier Rules](Screenshots/02-web-tier-rules.png)
 
 ---
 
@@ -158,10 +158,10 @@ Because the tiers are not public visible, only bastion has access to them throug
 Save your screenshot as:
 
 ```
-screenshots/03-services-running.png
+Screenshots/03-services-running.png
 ```
 
-![Services Running](screenshots/03-services-running.png)
+![Services Running](Screenshots/03-services-running.png)
 
 ---
 
@@ -190,10 +190,10 @@ _______________________________________________________________
 Save your screenshot as:
 
 ```
-screenshots/04-traffic-flow-test.png
+Screenshots/04-traffic-flow-test.png
 ```
 
-![Traffic Flow Test](screenshots/04-traffic-flow-test.png)
+![Traffic Flow Test](Screenshots/04-traffic-flow-test.png)
 
 ---
 
@@ -243,10 +243,10 @@ Specifically the HTTP port was configured to 0 in the app sg, when it should be 
 Save your screenshot as:
 
 ```
-screenshots/05-architecture-console.png
+Screenshots/05-architecture-console.png
 ```
 
-![Architecture Console](screenshots/05-architecture-console.png)
+![Architecture Console](Screenshots/05-architecture-console.png)
 
 ---
 
