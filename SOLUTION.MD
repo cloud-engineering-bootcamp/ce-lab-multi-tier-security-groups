@@ -27,11 +27,10 @@
 Save your screenshot as:
 
 ```
-screenshots/01-security-groups-list.png
+Screenshots/01-security-groups-list.png
 ```
 
-![Security Groups List](screenshots/01-security-groups-list.png)
-
+![Security Groups List](Screenshots/01-security-groups-list.png)
 ---
 
 - [x] `sg-bastion` created
@@ -93,10 +92,10 @@ We reference a Security Group instead of a private IP or CIDR because Security G
 Save your screenshot as:
 
 ```
-screenshots/02-web-tier-rules.png
+Screenshots/02-web-tier-rules.png
 ```
 
-![Web Tier Rules](screenshots/02-web-tier-rules.png)
+![Web Tier Rules](Screenshots/02-web-tier-rules.png)
 
 ---
 
@@ -159,10 +158,10 @@ Private tiers should be accessed using private IP addresses because they are int
 Save your screenshot as:
 
 ```
-screenshots/03-services-running.png
+Screenshots/03-services-running.png
 ```
 
-![Services Running](screenshots/03-services-running.png)
+![Services Running](Screenshots/03-services-running.png)
 
 ---
 
@@ -187,10 +186,10 @@ screenshots/03-services-running.png
 Save your screenshot as:
 
 ```
-screenshots/04-traffic-flow-test.png
+Screenshots/04-traffic-flow-test.png
 ```
 
-![Traffic Flow Test](screenshots/04-traffic-flow-test.png)
+![Traffic Flow Test](Screenshots/04-traffic-flow-test.png)
 
 ---
 
@@ -239,10 +238,10 @@ because of the wrong nginx config file
 Save your screenshot as:
 
 ```
-screenshots/05-architecture-console.png
+Screenshots/05-architecture-console.png
 ```
 
-![Architecture Console](screenshots/05-architecture-console.png)
+![Architecture Console](Screenshots/05-architecture-console.png)
 
 ---
 
@@ -380,7 +379,7 @@ possible, and verify connectivity between each tier step by step.
 - [x] Blocked traffic confirmed with timeouts
 - [x] End-to-end application test successful
 - [x] Architecture documented
-- [x] All required screenshots captured
+- [x] All required Screenshots captured
 - [x] Reflection questions completed
 - [x] Changes committed to Git
 - [x] Pull Request created
