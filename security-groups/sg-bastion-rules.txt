@@ -1,0 +1,7 @@
+Inbound:
+  - SSH (22) from xxx.xxx.xx.xx/32
+
+Outbound:
+  - SSH (22) to web-tier-sg
+  - SSH (22) to app-tier-sg
+  - SSH (22) to database-sg

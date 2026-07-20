@@ -1,11 +1,11 @@
 # Lab M2.03 - Configure Multi-Tier Security Groups
 
-**Week 2 - Core Services & Secure Deployment**  
+**Week 2 - Core Services & Secure Deployment**
 **Day 2 - Advanced Security and HTTP Access**
 
 **Repository:** [https://github.com/cloud-engineering-bootcamp/ce-lab-multi-tier-security-groups](https://github.com/cloud-engineering-bootcamp/ce-lab-multi-tier-security-groups)
 
-**Activity Type:** Individual (Mandatory)  
+**Activity Type:** Individual (Mandatory) 
 **Estimated Time:** 45-60 minutes
 
 ## Skills
@@ -38,6 +38,7 @@ Move beyond simple security groups to production-ready, layered security. You'll
 ## Scenario
 
 Your team is deploying a web application with these requirements:
+
 - Public-facing web server (Nginx)
 - Application server (Node.js on port 8080)
 - Database server (simulated with netcat)
@@ -50,12 +51,14 @@ Your task: Design and implement security groups so only necessary traffic flows 
 ## Your Task
 
 **What you'll create:**
+
 - 4 security groups (web, app, database, bastion)
 - 4 EC2 instances (bastion, web, app, database)
 - Security group references between tiers
 - Traffic flow tests and documentation
 
 **Success criteria:**
+
 - [ ] Web tier accessible from internet (port 80)
 - [ ] Application tier accessible only from web tier
 - [ ] Database tier accessible only from app tier
@@ -73,6 +76,7 @@ Your task: Design and implement security groups so only necessary traffic flows 
 Create 4 security groups with these configurations:
 
 **sg-bastion:**
+
 ```
 Inbound:
   - SSH (22) from YOUR_IP/32
@@ -84,6 +88,7 @@ Outbound:
 ```
 
 **sg-web-tier:**
+
 ```
 Inbound:
   - HTTP (80) from 0.0.0.0/0
@@ -96,6 +101,7 @@ Outbound:
 ```
 
 **sg-app-tier:**
+
 ```
 Inbound:
   - Custom TCP (8080) from sg-web-tier
@@ -107,6 +113,7 @@ Outbound:
 ```
 
 **sg-database:**
+
 ```
 Inbound:
   - MySQL (3306) from sg-app-tier
@@ -148,6 +155,7 @@ This screenshot verifies that all required security groups have been successfull
 ### Step 2: Launch Instances
 
 Launch 4 instances, each with a single security group:
+
 - Bastion instance: sg-bastion
 - Web instance: sg-web-tier
 - App instance: sg-app-tier
@@ -259,6 +267,7 @@ Open the **Inbound Rules** for the **sg-web-tier** security group and ensure the
 This screenshot verifies that the web tier has been configured with the correct inbound security rules before application traffic is tested.
 
 ---
+
 ### Step 3: Simulate Application Traffic
 
 Before you can test whether traffic is *allowed*, each tier needs a service actually listening. Set these up first — otherwise every test in Step 4 fails no matter how correct your security groups are.
@@ -266,6 +275,7 @@ Before you can test whether traffic is *allowed*, each tier needs a service actu
 > **Note:** Amazon Linux 2023 is a minimal image - it ships with neither `nc` (netcat) nor Node.js. Each tier installs what it needs below. `nc` goes on **all three** instances: the database uses it to listen, and the web and app tiers use it for the connectivity tests in Step 4.
 
 **On "database" instance:**
+
 ```bash
 # netcat is not installed on Amazon Linux 2023
 sudo dnf install -y nmap-ncat
@@ -277,6 +287,7 @@ done &
 ```
 
 **On "app" instance:**
+
 ```bash
 # Node.js and netcat are not installed on Amazon Linux 2023
 sudo dnf install -y nodejs nmap-ncat
@@ -296,6 +307,7 @@ node server.js &
 ```
 
 **On "web" instance:**
+
 ```bash
 # Configure Nginx to proxy to app (netcat is needed for the Step 4 tests)
 sudo dnf install -y nginx nmap-ncat
@@ -346,20 +358,22 @@ Now that each tier is listening, the tests below actually exercise your security
 
 **Reading your results — this distinction is the whole point of the lab:**
 
-| Result | What it means |
-|--------|---------------|
-| **Connection refused** | The security group **allowed** the packet, but nothing is listening on that port |
-| **Timeout / hangs** | The security group **blocked** the packet - it never reached the host |
+| Result                       | What it means                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------- |
+| **Connection refused** | The security group**allowed** the packet, but nothing is listening on that port  |
+| **Timeout / hangs**    | The security group**blocked** the packet - it never reached the host             |
 
 A "refused" on a test you expected to block means your rules are too permissive.
 
 **Test 1: Web tier from internet**
+
 ```bash
 # Should work
 curl http://WEB_INSTANCE_PUBLIC_IP
 ```
 
 **Test 2: SSH via bastion**
+
 ```bash
 # Should work
 ssh bastion-instance
@@ -367,12 +381,14 @@ ssh web-instance-private-ip  # From bastion
 ```
 
 **Test 3: Direct SSH (should fail)**
+
 ```bash
 # Should timeout/refuse
 ssh web-instance-public-ip  # From your computer (not bastion)
 ```
 
 **Test 4: App tier from web tier**
+
 ```bash
 # SSH to web instance
 ssh web-instance
@@ -382,6 +398,7 @@ nc -zv app-instance 8080  # Should work
 ```
 
 **Test 5: Database from app tier**
+
 ```bash
 # SSH to app instance
 ssh app-instance
@@ -391,6 +408,7 @@ nc -zv db-instance 3306  # Should work
 ```
 
 **Test 6: Database from web tier (should fail)**
+
 ```bash
 # SSH to web instance
 ssh web-instance
@@ -400,6 +418,7 @@ nc -zv db-instance 3306  # Should timeout (not allowed)
 ```
 
 **Test 7: End-to-end through all tiers**
+
 ```bash
 curl http://WEB_INSTANCE_PUBLIC_IP
 # Should return: "Hello from App Tier"
@@ -429,6 +448,7 @@ Capture your terminal showing evidence of the traffic flow tests, including:
 This screenshot demonstrates that the multi-tier security group configuration correctly allows authorized traffic while blocking unauthorized access.
 
 ---
+
 ## 📤 What to Submit
 
 **Submission Type:** GitHub Repository
@@ -436,6 +456,7 @@ This screenshot demonstrates that the multi-tier security group configuration co
 Create a **public** GitHub repository named `ce-lab-multi-tier-security`:
 
 **Structure:**
+
 ```
 ce-lab-multi-tier-security/
 ├── README.md
@@ -500,16 +521,15 @@ Before submitting your lab, verify that the following screenshots are present in
 
 ## Grading Rubric
 
-| Criteria | Points |
-|----------|--------|
-| **Security Group Design** | 30 |
-| **Configuration Correctness** | 25 |
-| **Testing & Verification** | 20 |
-| **Documentation** | 15 |
-| **Architecture Diagram** | 10 |
-| **Total** | **100** |
+| Criteria                            | Points        |
+| ----------------------------------- | ------------- |
+| **Security Group Design**     | 30            |
+| **Configuration Correctness** | 25            |
+| **Testing & Verification**    | 20            |
+| **Documentation**             | 15            |
+| **Architecture Diagram**      | 10            |
+| **Total**                     | **100** |
 
 ---
 
 **Great work on implementing production-ready security!** 🛡️
-

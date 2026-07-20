@@ -1,21 +1,23 @@
+Private tiers use private IP addresses to ensure internal VPC communication, enhance security, and prevent direct internet access.
+
 # Configure Multi-Tier Security Groups Lab - Solution
 
-**Student Name:** [Your Name]  
-**Date Completed:** [Date]
+**Student Name:** Hafiz Abdul Quddus
+**Date Completed:** 19-07-2026
 
 ---
 
 # Environment Details
 
-| Tier | Instance ID | Private IP | Public IP | Security Group |
-|------|-------------|------------|-----------|----------------|
-| Bastion | [i-xxxxxxxxxxxxx] | [10.x.x.x] | [x.x.x.x — redact if repo is public] | [sg-bastion] |
-| Web | [i-xxxxxxxxxxxxx] | [10.x.x.x] | [x.x.x.x] | [sg-web-tier] |
-| App | [i-xxxxxxxxxxxxx] | [10.x.x.x] | [none] | [sg-app-tier] |
-| Database | [i-xxxxxxxxxxxxx] | [10.x.x.x] | [none] | [sg-database] |
+| Tier     | Instance ID         | Private IP   | Public IP      | Security Group |
+| -------- | ------------------- | ------------ | -------------- | -------------- |
+| Bastion  | i-0dd872a8f7f56a6c9 | 172.31.17.52 | 100.55.63.226  | bastion-sg     |
+| Web      | i-09ea566ebc4c002f7 | 172.31.13.68 | 100.53.98.27   | web-tier-sg    |
+| App      | i-02ceb7f27addc7e4d | 172.31.18.56 | 54.234.106.103 | app-tier-sg    |
+| Database | i-0c5a2a1320a1bbff9 | 172.31.20.44 | 54.144.50.151  | database-sg    |
 
-- **Region / VPC:** [eu-west-1 / vpc-xxxxxxxx]
-- **Key Pair:** [bootcamp-week2-key.pem]
+- **Region / VPC:** eu-east-1 / vpc-07f871bexxxxxf
+- **Key Pair:** bootcamp-week2-key.pem
 - **My IP (SSH source):** [x.x.x.x/32]
 
 ---
@@ -34,45 +36,45 @@ screenshots/01-security-groups-list.png
 
 ---
 
-- [ ] `sg-bastion` created
-- [ ] `sg-web-tier` created
-- [ ] `sg-app-tier` created
-- [ ] `sg-database` created
-- [ ] Rules reference other **security groups**, not IP ranges (except port 22 on the bastion and 80/443 on the web tier)
+- [X] `sg-bastion` created
+- [X] `sg-web-tier` created
+- [X] `sg-app-tier` created
+- [X] `sg-database` created
+- [X] Rules reference other **security groups**, not IP ranges (except port 22 on the bastion and 80/443 on the web tier)
 
 ### sg-bastion
 
-| Direction | Port | Source / Destination | Purpose |
-|-----------|------|----------------------|---------|
-| Inbound | [22] | [YOUR_IP/32] | [SSH from my laptop] |
-| Outbound | [22] | [sg-web-tier, sg-app-tier, sg-database] | [Hop to private tiers] |
+| Direction | Port | Source / Destination                      | Purpose                                                |
+| --------- | ---- | ----------------------------------------- | ------------------------------------------------------ |
+| Inbound   | 22   | x.x.x.x/32                                | Allow SSH from my-pc                                   |
+| Outbound  | 22   | [app-tier-sg, database-sg, web-tier-sg] | SSH (22) to app-tier-sg, database-sg and web-tier-sg |
 
 ### sg-web-tier
 
-| Direction | Port | Source / Destination | Purpose |
-|-----------|------|----------------------|---------|
-| Inbound | [80] | [0.0.0.0/0] | [Public HTTP] |
-| Inbound | [443] | [0.0.0.0/0] | [Public HTTPS] |
-| Inbound | [22] | [sg-bastion] | [SSH via bastion only] |
-| Outbound | [8080] | [sg-app-tier] | [Proxy to app tier] |
-| Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
+| Direction | Port | Source / Destination | Purpose                         |
+| --------- | ---- | -------------------- | ------------------------------- |
+| Inbound   | 80   | 0.0.0.0/0            | Allow HTTP from Internet        |
+| Inbound   | 443  | 0.0.0.0/0            | Allow HTTPS from Internet       |
+| Inbound   | 22   | bastion-sg           | SSH via bastion only            |
+| Outbound  | 8080 | app-tier-sg          | Cutom TCP (8080) to app-tier-sg |
+| Outbound  | 443  | [0.0.0.0/0]          | Allow HTTPS (443) to Internet   |
 
 ### sg-app-tier
 
-| Direction | Port | Source / Destination | Purpose |
-|-----------|------|----------------------|---------|
-| Inbound | [8080] | [sg-web-tier] | [App traffic from web tier] |
-| Inbound | [22] | [sg-bastion] | [SSH via bastion only] |
-| Outbound | [3306] | [sg-database] | [MySQL queries] |
-| Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
+| Direction | Port | Source / Destination | Purpose                                  |
+| --------- | ---- | -------------------- | ---------------------------------------- |
+| Inbound   | 8080 | web-tier-sg          | Allow custom TCP (8080) from web-tier-sg |
+| Inbound   | 22   | bastion-sg           | Allow SSH (22) from bastion-sg           |
+| Outbound  | 3306 | database-sg          | MySQL (3306) to database-sg              |
+| Outbound  | 443  | 0.0.0.0/0            | HTTPS (443) to 0.0.0.0/0                 |
 
 ### sg-database
 
-| Direction | Port | Source / Destination | Purpose |
-|-----------|------|----------------------|---------|
-| Inbound | [3306] | [sg-app-tier] | [MySQL from app tier only] |
-| Inbound | [22] | [sg-bastion] | [SSH via bastion only] |
-| Outbound | [443] | [0.0.0.0/0] | [Package downloads] |
+| Direction | Port | Source / Destination | Purpose                             |
+| --------- | ---- | -------------------- | ----------------------------------- |
+| Inbound   | 3306 | app-tier-sg          | Allow MySQL (3306) from app-tier-sg |
+| Inbound   | [22] | bastion-sg           | Allow SSH (22) from bastion-sg      |
+| Outbound  | 443  | 0.0.0.0/0            | HTTPS to Internet                   |
 
 ---
 
@@ -81,11 +83,8 @@ screenshots/01-security-groups-list.png
 **Your Answer**
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+Security group references provide dynamic and secure access control. They automatically permit traffic only from instances 
+in the specified security group, eliminating the need to manage changing private IP addresses or CIDR ranges.
 ```
 
 ---
@@ -104,15 +103,15 @@ screenshots/02-web-tier-rules.png
 
 ---
 
-- [ ] 4 instances launched, one security group each
-- [ ] Connected to the bastion from my laptop
-- [ ] Reached web / app / db by **private IP** through the bastion
+- [X] 4 instances launched, one security group each
+- [X] Connected to the bastion from my laptop
+- [X] Reached web / app / db by **private IP** through the bastion
 
 ---
 
 ### Which connection method did you use?
 
-- [ ] ProxyJump
+- [X] ProxyJump
 - [ ] Copy key to bastion
 
 ---
@@ -120,7 +119,28 @@ screenshots/02-web-tier-rules.png
 ### My `~/.ssh/config` (or the commands I ran)
 
 ```text
-[Paste your host entries or SSH commands here]
+Host bastion
+    HostName BASTION_PUBLIC_IP
+    User ec2-user
+    IdentityFile ~/.ssh/YOUR_KEY.pem
+
+Host web
+    HostName WEB_PRIVATE_IP
+    User ec2-user
+    IdentityFile ~/.ssh/YOUR_KEY.pem
+    ProxyJump bastion
+
+Host app
+    HostName APP_PRIVATE_IP
+    User ec2-user
+    IdentityFile ~/.ssh/YOUR_KEY.pem
+    ProxyJump bastion
+
+Host db
+    HostName DB_PRIVATE_IP
+    User ec2-user
+    IdentityFile ~/.ssh/YOUR_KEY.pem
+    ProxyJump bastion
 ```
 
 ---
@@ -130,14 +150,12 @@ screenshots/02-web-tier-rules.png
 **Your Answer**
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+Private tiers use private IP addresses to ensure internal VPC communication, enhance security, 
+and prevent direct internet access.
 ```
 
 ---
+
 # Step 3: Simulate Application Traffic
 
 ## Screenshot 3 – Services Running
@@ -152,20 +170,17 @@ screenshots/03-services-running.png
 
 ---
 
-- [ ] Database: `nc -l 3306` loop running (`nmap-ncat` installed)
-- [ ] App: `server.js` listening on 8080 (`nodejs` installed)
-- [ ] Web: Nginx installed, proxying `/` to `http://APP_PRIVATE_IP:8080`, enabled on boot
+- [X] Database: `nc -l 3306` loop running (`nmap-ncat` installed)
+- [X] App: `server.js` listening on 8080 (`nodejs` installed)
+- [X] Web: Nginx installed, proxying `/` to `http://APP_PRIVATE_IP:8080`, enabled on boot
 
 ### Anything that did not start cleanly?
 
 **Your Answer**
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+No major issues. The only problem was a malformed curl command caused by hidden Unicode characters, 
+which was resolved by typing the command manually.
 ```
 
 ---
@@ -188,15 +203,15 @@ screenshots/04-traffic-flow-test.png
 
 Tick the box if the test did what the **Expected** column says.
 
-| # | Test | Run from | Expected | Got it |
-|---|------|----------|----------|--------|
-| 1 | `curl http://WEB_PUBLIC_IP` | Laptop | ✅ HTTP 200 | [ ] |
-| 2 | `ssh bastion`, then `ssh WEB_PRIVATE_IP` | Laptop → bastion | ✅ Connects | [ ] |
-| 3 | `ssh ec2-user@WEB_PUBLIC_IP` | Laptop | ❌ Timeout | [ ] |
-| 4 | `nc -zv APP_PRIVATE_IP 8080` | Web | ✅ Succeeds | [ ] |
-| 5 | `nc -zv DB_PRIVATE_IP 3306` | App | ✅ Succeeds | [ ] |
-| 6 | `nc -zv DB_PRIVATE_IP 3306` | Web | ❌ Timeout | [ ] |
-| 7 | `curl http://WEB_PUBLIC_IP` | Laptop | ✅ "Hello from App Tier" | [ ] |
+| # | Test                                         | Run from          | Expected                 | Got it                                                 |
+| - | -------------------------------------------- | ----------------- | ------------------------ | ------------------------------------------------------ |
+| 1 | `curl http://WEB_PUBLIC_IP`                | Laptop            | ✅ HTTP 200              | HTTP 200 (OK and Successful) (`Hello from App Tier`) |
+| 2 | `ssh bastion`, then `ssh WEB_PRIVATE_IP` | Laptop → bastion | ✅ Connects              | [Connects (using ssh agent authentication)             |
+| 3 | `ssh ec2-user@WEB_PUBLIC_IP`               | Laptop            | ❌ Timeout               | Timeout (Connection time out)                          |
+| 4 | `nc -zv APP_PRIVATE_IP 8080`               | Web               | ✅ Succeeds              | Successed (Connection with Ncat)                       |
+| 5 | `nc -zv DB_PRIVATE_IP 3306`                | App               | ✅ Succeeds              | Successed (Connection with Ncat)                       |
+| 6 | `nc -zv DB_PRIVATE_IP 3306`                | Web               | ❌ Timeout               | Timeout (Ncat: TIMEOUT)                                |
+| 7 | `curl http://WEB_PUBLIC_IP`                | Laptop            | ✅ "Hello from App Tier" | "Hello from App Tier)"                                 |
 
 ---
 
@@ -204,7 +219,7 @@ Tick the box if the test did what the **Expected** column says.
 
 (Timeout is the correct answer. "Connection refused" means the web tier can reach the database and a rule is too permissive.)
 
-- [ ] Timed out / hung ✅ Correct
+- [X] Timed out / hung ✅ Correct
 - [ ] Connection refused ⚠️ Rules too permissive
 
 ---
@@ -212,16 +227,13 @@ Tick the box if the test did what the **Expected** column says.
 ### Did every test pass on the first attempt?
 
 - [ ] Yes
-- [ ] No
+- [X] No
 
 If no, what did you have to fix?
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+No. I fixed Nginx configuration issues, replaced the placeholder app IP with the correct private IP, 
+resolved duplicate Node.js port usage, and updated the Nginx default server configuration to enable proper proxying.
 ```
 
 ---
@@ -242,20 +254,24 @@ screenshots/05-architecture-console.png
 
 Confirm each communication path.
 
-- [ ] Internet → Web on port **80**
-- [ ] Web → App on port **8080**
-- [ ] App → Database on port **3306**
-- [ ] SSH access only through the bastion host
-- [ ] Web → Database blocked
-- [ ] Internet → App blocked
-- [ ] Internet → Database blocked
+- [X] Internet → Web on port **80**
+- [X] Web → App on port **8080**
+- [X] App → Database on port **3306**
+- [X] SSH access only through the bastion host
+- [X] Web → Database blocked
+- [X] Internet → App blocked
+- [X] Internet → Database blocked
 
 ---
 
 ### Instances with no public IP
 
 ```
-_______________________________________________________________
+- App Tier EC2 Instance (Private IP: 172.31.18.56)
+  Access: Only through Bastion Host / Web Tier (as allowed by Security Groups)
+
+- Database Tier EC2 Instance (Private IP: 172.31.20.44)
+  Access: Only through Bastion Host / App Tier (as allowed by Security Groups)
 ```
 
 ---
@@ -263,35 +279,37 @@ _______________________________________________________________
 ### Instances reachable from the Internet
 
 ```
-_______________________________________________________________
+- Bastion Host EC2 Instance
+  Access: SSH (Port 22) from MY_IP/32 only
+
+- Web Tier EC2 Instance (Nginx)
+  Access:
+    HTTP  (Port 80)  from 0.0.0.0/0
+    HTTPS (Port 443) from 0.0.0.0/0
 ```
 
 ---
 
-# Bonus Challenges (Optional)
+# Bonus Challenges (Optional) : NA
 
 - [ ] **Challenge 1:** Remove the `443 → 0.0.0.0/0` egress rule from one tier. What broke?
 
 ```
-_______________________________________________________________
 ```
 
 - [ ] **Challenge 2:** Attach two security groups to one instance. How do the rules combine?
 
 ```
-_______________________________________________________________
 ```
 
 - [ ] **Challenge 3:** Tighten the bastion's inbound SSH to a single `/32` and re-test from another network.
 
 ```
-_______________________________________________________________
 ```
 
 - [ ] **Challenge 4:** Recreate the four security groups using the AWS CLI.
 
 ```
-_______________________________________________________________
 ```
 
 ---
@@ -301,11 +319,7 @@ _______________________________________________________________
 ## 1. Why can the application tier reach the database, but the web tier cannot?
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+Because the database security group allows traffic only from the app tier security group on port 3306.
 ```
 
 ---
@@ -313,11 +327,7 @@ _______________________________________________________________
 ## 2. Why do all private instances only accept SSH from the bastion?
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+To prevent direct internet access and provide a secure controlled entry point for administration.
 ```
 
 ---
@@ -325,11 +335,7 @@ _______________________________________________________________
 ## 3. When a connection timed out instead of failing immediately, what was blocking it?
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+The AWS Security Group rules were silently dropping unauthorized traffic.
 ```
 
 ---
@@ -337,11 +343,7 @@ _______________________________________________________________
 ## 4. Which security group rule would you never configure in a production environment, and why?
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
-
-_______________________________________________________________
+Allowing SSH (22) from 0.0.0.0/0 because it exposes servers to unauthorized access attempts.
 ```
 
 ---
@@ -351,9 +353,7 @@ _______________________________________________________________
 ### Hardest part of this lab
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
+Configuring Nginx reverse proxy and troubleshooting security group connectivity between tiers.
 ```
 
 ---
@@ -361,26 +361,22 @@ _______________________________________________________________
 ### One thing I will do differently in future AWS deployments
 
 ```
-_______________________________________________________________
-
-_______________________________________________________________
+I will design security groups and network access rules before launching instances.
 ```
 
 ---
 
 # Checklist
 
-- [ ] 4 security groups created with security group references
-- [ ] 4 EC2 instances launched
-- [ ] SSH works only through the bastion
-- [ ] Required services running on all tiers
-- [ ] All 7 connectivity tests completed
-- [ ] Blocked traffic confirmed with timeouts
-- [ ] End-to-end application test successful
-- [ ] Architecture documented
-- [ ] All required screenshots captured
-- [ ] Reflection questions completed
-- [ ] Changes committed to Git
-- [ ] Pull Request created
-
-
+- [X] 4 security groups created with security group references
+- [X] 4 EC2 instances launched
+- [X] SSH works only through the bastion
+- [X] Required services running on all tiers
+- [X] All 7 connectivity tests completed
+- [X] Blocked traffic confirmed with timeouts
+- [X] End-to-end application test successful
+- [X] Architecture documented
+- [X] All required screenshots captured
+- [X] Reflection questions completed
+- [X] Changes committed to Git
+- [X] Pull Request created
